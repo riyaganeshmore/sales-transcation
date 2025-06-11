@@ -122,9 +122,13 @@ ORDER BY total_sales DESC;
 
   <h2>👥 Team Members</h2>
   <ul>
-    <li>Your Name</li>
-    <li>Teammate 2</li>
-    <li>Teammate 3</li>
+    <li>Team 9</li>
+    <li>Riya More</li>
+    <li>Bhumika Wadhwani</li>
+    <li>TSuraj Sharma</li>
+    <li>Amardeep Patel</li>
+    <li>Rakhi Sathi</li>
+    <li>Anil </li>
   </ul>
 
   <h2>📁 Repository Structure</h2>
