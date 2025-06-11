@@ -128,7 +128,7 @@ ORDER BY total_sales DESC;
     <li>Suraj Sharma</li>
     <li>Amardeep Patel</li>
     <li>Rakhi Sathi</li>
-    <li>Anil </li>
+    <li>Anil Jangid</li>
   </ul>
 
   <h2>📁 Repository Structure</h2>
