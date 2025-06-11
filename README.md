@@ -1,49 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sales Transactions Aggregator using AWS Glue</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.7;
-      padding: 30px;
-      max-width: 900px;
-      margin: auto;
-      background-color: #f9f9f9;
-      color: #333;
-    }
-    h1, h2, h3 {
-      color: #0a66c2;
-    }
-    code, pre {
-      background-color: #f4f4f4;
-      padding: 10px;
-      border-radius: 4px;
-      display: block;
-      white-space: pre-wrap;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #aaa;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #e0e0e0;
-    }
-    .highlight {
-      background-color: #e7f3ff;
-      padding: 10px;
-      border-left: 5px solid #0a66c2;
-    }
-  </style>
-</head>
 <body>
 
   <h1>🧾 Sales Transactions Aggregator Using AWS Glue & S3</h1>
