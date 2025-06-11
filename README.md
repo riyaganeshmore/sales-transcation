@@ -43,7 +43,7 @@ store_id,store_name,location,manager_name<br>
 S101,ABC Store,Mumbai,John Doe<br>
 S102,XYZ Store,Pune,Jane Smith<br><br>
 <h2>🔄 ETL Workflow (AWS Glue)</h2><br><br>
-<u><Step 1</u>: Load Data<br>
+<b><Step 1</b>: Load Data<br>
 Read daily sales transactions and store metadata from Amazon S3.<br><br>
 
 <u><Step 2</u>: Join Datasets<br>
