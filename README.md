@@ -66,7 +66,7 @@ Store final aggregated output in s3://salesinfo-bucket1/processed/aggregated-sal
 
 Format: Parquet (for optimized storage and query performance)<br>
 
-</h2>👥 Team Members</h2><br>
+<h2>👥 Team Members</h2><br>
 Team 9<br>
 Riya More<br>
 Bhumika Wadhwani<br>
