@@ -1,93 +1,186 @@
-<h1>🧾 Sales Transactions Aggregator Using AWS Glue & S3</h1><br>
-<h2>📌 Overview</h2><br>
-This project demonstrates a serverless ETL pipeline using AWS Glue and Amazon S3. It processes daily sales transaction data from multiple stores, enriches it with metadata, filters out invalid records, and generates aggregated sales reports.<br><br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sales Transactions Aggregator using AWS Glue</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      padding: 30px;
+      max-width: 900px;
+      margin: auto;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #0a66c2;
+    }
+    code, pre {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 4px;
+      display: block;
+      white-space: pre-wrap;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #e0e0e0;
+    }
+    .highlight {
+      background-color: #e7f3ff;
+      padding: 10px;
+      border-left: 5px solid #0a66c2;
+    }
+  </style>
+</head>
+<body>
 
-This solution is useful for retail or e-commerce businesses looking to build automated reporting systems based on cloud-native architecture.<br>
+  <h1>🧾 Sales Transactions Aggregator Using AWS Glue & S3</h1>
 
-<h2>🧱 Architecture Components</h2><br>
-Service	<br>
-Amazon S3	Storage for raw input files, metadata, and processed output<br>
-AWS Glue	Serverless ETL job to transform and process data<br>
-Glue Data Catalog	Manages metadata for sales and store tables<br>
-Amazon Athena (optional)	SQL-based querying of processed output<br>
+  <h2>📌 Overview</h2>
+  <p>This project demonstrates a serverless ETL pipeline using <strong>AWS Glue</strong> and <strong>Amazon S3</strong>. It processes <strong>daily sales transaction data</strong> from multiple stores, enriches it with metadata, filters out invalid records, and generates <strong>aggregated sales reports</strong>.</p>
 
-<h2>📂 Input Data</h2><br>
-🛒 1. Daily Sales Transactions<br>
-Location: s3://salesinfo-bucket1/raw/daily-sales/<br>
+  <h2>🧱 Architecture Components</h2>
+  <table>
+    <tr><th>Service</th><th>Purpose</th></tr>
+    <tr><td>Amazon S3</td><td>Storage for raw input files, metadata, and processed output</td></tr>
+    <tr><td>AWS Glue</td><td>Serverless ETL job to transform and process data</td></tr>
+    <tr><td>Glue Data Catalog</td><td>Manages metadata for sales and store tables</td></tr>
+    <tr><td>Amazon Athena (optional)</td><td>SQL-based querying of processed output</td></tr>
+  </table>
 
-Format: JSON or CSV<br>
+  <h2>📂 Input Data</h2>
 
-Example:<br>
+  <h3>🛒 1. Daily Sales Transactions</h3>
+  <p><strong>Location:</strong> <code>s3://salesinfo-bucket1/raw/daily-sales/</code></p>
+  <p><strong>Format:</strong> JSON or CSV</p>
+  <pre>{
+  "transaction_id": "TXN00123",
+  "store_id": "S101",
+  "product_id": "P202",
+  "sales_amount": 450.00,
+  "timestamp": "2025-06-10T14:35:00Z"
+}</pre>
 
-json<br>
-Copy<br>
-Edit<br>
-{
-  "transaction_id": "TXN00123",<br>
-  "store_id": "S101",<br>
-  "product_id": "P202",<br>
-  "sales_amount": 450.00,<br>
-  "timestamp": "2025-06-10T14:35:00Z"<br>
-}<br><br>
-<h2>🏬 2. Store Metadata</h2><br>
-Location: s3://salesinfo-bucket1/reference/store_metadata.csv<br>
+  <h3>🏬 2. Store Metadata</h3>
+  <p><strong>Location:</strong> <code>s3://salesinfo-bucket1/reference/store_metadata.csv</code></p>
+  <p><strong>Format:</strong> CSV</p>
+  <pre>store_id,store_name,location,manager_name
+S101,ABC Store,Mumbai,John Doe
+S102,XYZ Store,Pune,Jane Smith</pre>
 
-Format: CSV<br>
+  <h2>🔄 ETL Workflow (AWS Glue)</h2>
 
-Example:<br>
-<br>
-cs<br>
-Copy<br>
-Edit<br>
-store_id,store_name,location,manager_name<br>
-S101,ABC Store,Mumbai,John Doe<br>
-S102,XYZ Store,Pune,Jane Smith<br><br>
-<h2>🔄 ETL Workflow (AWS Glue)</h2><br><br>
-<Step 1: Load Data<br>
-Read daily sales transactions and store metadata from Amazon S3.<br><br>
+  <ol>
+    <li><strong>Load Data:</strong> Read daily sales and store metadata from S3.</li>
+    <li><strong>Join:</strong> Enrich sales data with store metadata using <code>store_id</code>.</li>
+    <li><strong>Clean:</strong> Remove transactions with missing or invalid fields (e.g., null or ≤ 0 sales).</li>
+    <li><strong>Aggregate:</strong> Group by <code>store_id</code> and <code>product_id</code>, summing total sales.</li>
+    <li><strong>Write Output:</strong> Save cleaned and aggregated data back to S3 in Parquet format.</li>
+  </ol>
 
-<Step 2: Join Datasets<br>
-Perform an inner join on store_id to enrich sales data with store details like location and manager name.<br>
-<br><br>
-<Step 3: Clean Data<br>
-Filter out records with:<br>
+  <h2>🧪 Sample Glue Script (PySpark)</h2>
+  <pre>
+from pyspark.sql.functions import col, sum
+from awsglue.context import GlueContext
+from pyspark.context import SparkContext
 
-Null or missing store_id, product_id, or sales_amount<br>
+sc = SparkContext()
+glueContext = GlueContext(sc)
+spark = glueContext.spark_session
 
-sales_amount ≤ 0<br>
+# Load sales data
+sales_df = spark.read.json("s3://salesinfo-bucket1/raw/daily-sales/")
 
-Step 4: Aggregate Sales<br><br>
-Group by store_id and product_id<br>
+# Load store metadata
+metadata_df = spark.read.csv("s3://salesinfo-bucket1/reference/store_metadata.csv", header=True)
 
-Calculate total sales using Spark aggregation<br><br>
+# Join datasets
+joined_df = sales_df.join(metadata_df, on="store_id", how="inner")
 
-<Step 5: Write Output<br>
-Store final aggregated output in s3://salesinfo-bucket1/processed/aggregated-sales/<br>
+# Filter invalid data
+valid_df = joined_df.filter(
+    (col("sales_amount").isNotNull()) & 
+    (col("sales_amount") > 0)
+)
 
-Format: Parquet (for optimized storage and query performance)<br>
+# Aggregate sales
+agg_df = valid_df.groupBy("store_id", "product_id") \
+                 .agg(sum("sales_amount").alias("total_sales"))
 
-<h2>👥 Team Members</h2><br>
-Team 9<br>
-Riya More<br>
-Bhumika Wadhwani<br>
-Suraj Sharma<br>
-Rakhi Sathi<br>
-Amardeep Patel<br>
-Anil <br>
+# Write to S3
+agg_df.write.mode("overwrite").parquet("s3://salesinfo-bucket1/processed/aggregated-sales/")
+  </pre>
 
-<h2>📁 Repository Structure</h2>br>
-bash<br>
-Copy<br>
-Edit<br>
-├── glue-scripts/<br>
-│   └── etl_sales_transform.py <br>     
-├── sample-data/<br>
-│   ├── daily_sales_sample.json<br>
-│   └── store_metadata.csv<br>
-├── README.md<br>                     
-└── architecture-diagram.png<br>         
+  <h2>✅ Output Example</h2>
+  <table>
+    <tr><th>store_id</th><th>product_id</th><th>total_sales</th></tr>
+    <tr><td>S101</td><td>P202</td><td>14,500.00</td></tr>
+    <tr><td>S102</td><td>P201</td><td>9,800.00</td></tr>
+  </table>
+  <p><strong>Output Location:</strong> <code>s3://salesinfo-bucket1/processed/aggregated-sales/</code></p>
 
+  <h2>🚧 Error Handling</h2>
+  <div class="highlight">
+    If you see the following error when accessing the file:
+    <pre>
+&lt;Error&gt;
+  &lt;Code&gt;AccessDenied&lt;/Code&gt;
+  &lt;Message&gt;Access Denied&lt;/Message&gt;
+&lt;/Error&gt;
+    </pre>
+    <strong>Solution:</strong>
+    <ul>
+      <li>Ensure the IAM Role used by Glue has correct S3 read/write permissions</li>
+      <li>Make the S3 object or bucket publicly accessible (if required)</li>
+      <li>Check for missing pre-signed URL or wrong region</li>
+    </ul>
+  </div>
 
-Format: Parquet or CSV for optimized storage and analytics
+  <h2>📈 Optional: Query With Amazon Athena</h2>
+  <pre>
+SELECT store_id, product_id, total_sales
+FROM "salesinfo"."aggregated_sales"
+ORDER BY total_sales DESC;
+  </pre>
 
-Optional: Partition the data by store_id or date for better querying
+  <h2>📌 Technologies Used</h2>
+  <ul>
+    <li>AWS Glue</li>
+    <li>Amazon S3</li>
+    <li>PySpark</li>
+    <li>AWS IAM</li>
+    <li>Optional: Amazon Athena</li>
+  </ul>
+
+  <h2>👥 Team Members</h2>
+  <ul>
+    <li>Your Name</li>
+    <li>Teammate 2</li>
+    <li>Teammate 3</li>
+  </ul>
+
+  <h2>📁 Repository Structure</h2>
+  <pre>
+├── glue-scripts/
+│   └── etl_sales_transform.py
+├── sample-data/
+│   ├── daily_sales_sample.json
+│   └── store_metadata.csv
+├── README.html
+└── architecture-diagram.png
+  </pre>
+
+</body>
+</html>
