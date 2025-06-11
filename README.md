@@ -43,25 +43,25 @@ store_id,store_name,location,manager_name<br>
 S101,ABC Store,Mumbai,John Doe<br>
 S102,XYZ Store,Pune,Jane Smith<br><br>
 <h2>🔄 ETL Workflow (AWS Glue)</h2><br><br>
-<b><Step 1</b>: Load Data<br>
+<Step 1: Load Data<br>
 Read daily sales transactions and store metadata from Amazon S3.<br><br>
 
-<u><Step 2</u>: Join Datasets<br>
+<Step 2: Join Datasets<br>
 Perform an inner join on store_id to enrich sales data with store details like location and manager name.<br>
 <br><br>
-<u><Step 3</u>: Clean Data<br>
+<Step 3: Clean Data<br>
 Filter out records with:<br>
 
 Null or missing store_id, product_id, or sales_amount<br>
 
 sales_amount ≤ 0<br>
 
-<u><Step 4</u>: Aggregate Sales<br><br>
+Step 4: Aggregate Sales<br><br>
 Group by store_id and product_id<br>
 
 Calculate total sales using Spark aggregation<br><br>
 
-<u><Step 5</u>: Write Output<br>
+<Step 5: Write Output<br>
 Store final aggregated output in s3://salesinfo-bucket1/processed/aggregated-sales/<br>
 
 Format: Parquet (for optimized storage and query performance)<br>
