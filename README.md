@@ -122,7 +122,6 @@ ORDER BY total_sales DESC;
 
   <h2>👥 Team Members</h2>
   <ul>
-    <li>Team 9</li>
     <li>Riya More</li>
     <li>Bhumika Wadhwani</li>
     <li>Suraj Sharma</li>
